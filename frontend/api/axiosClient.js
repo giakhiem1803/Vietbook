@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const API_BASE_URL = 'http://localhost:8000';
+export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000').replace(/\/$/, '');
 
 // Anh upload len server tra ve duong dan tuong doi (vd: /static/book_images/xxx.jpg)
 // Anh tu URL ngoai (vd: https://covers.openlibrary.org/...) thi giu nguyen.

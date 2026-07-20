@@ -56,7 +56,7 @@ const App = () => {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
-      <Footer studentName="Nguyen Van A" courseName="Full-Stack Web Development" />
+      <Footer studentName="Đinh Gia Khiêm" courseName="Full-Stack Web Development" />
     </>
   );
 };
