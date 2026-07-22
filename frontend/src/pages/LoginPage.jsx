@@ -51,9 +51,6 @@ const LoginPage = () => {
         </form>
       </div>
 
-      <p className="text-sm muted" style={{ marginTop: '14px', textAlign: 'center' }}>
-        Tài khoản admin mẫu: admin@vietbook.com / admin123
-      </p>
       <p className="text-sm" style={{ marginTop: '8px', textAlign: 'center' }}>
         Chưa có tài khoản? <Link to="/register" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Đăng ký</Link>
       </p>

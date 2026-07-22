@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { booksApi } from '../api/booksApi';
 import { useCart } from '../context/CartContext';
 import { resolveImageUrl } from '../api/axiosClient';
+import { FallbackCover } from '../components/BookCard';
 
 const BookDetailPage = () => {
   const { id } = useParams();
@@ -10,6 +11,7 @@ const BookDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [added, setAdded] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -19,6 +21,7 @@ const BookDetailPage = () => {
       try {
         const data = await booksApi.getById(id);
         setBook(data);
+        setImageFailed(false);
       } catch {
         setError('Không tải được thông tin sách.');
       } finally {
@@ -42,7 +45,9 @@ const BookDetailPage = () => {
     <div className="page">
       <Link to="/books" className="text-sm muted" style={{ display: 'inline-block', marginBottom: '20px' }}>← Quay lại danh sách</Link>
       <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
-        <img src={resolveImageUrl(book.imageUrl)} alt={book.title} style={{ width: '280px', aspectRatio: '3/4', objectFit: 'cover', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)' }} />
+        {!imageFailed && book.imageUrl ? (
+          <img src={resolveImageUrl(book.imageUrl)} alt={book.title} onError={() => setImageFailed(true)} style={{ width: '280px', aspectRatio: '3/4', objectFit: 'cover', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)' }} />
+        ) : <div className="detail-cover"><FallbackCover book={book} /></div>}
         <div style={{ flex: 1, minWidth: '260px' }}>
           <span className="book-card-genre">{book.genre}</span>
           <h1 style={{ fontSize: '1.8rem', margin: '6px 0' }}>{book.title}</h1>
