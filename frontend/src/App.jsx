@@ -10,46 +10,53 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import OrderHistoryPage from './pages/OrderHistoryPage';
 import OrderDetailPage from './pages/OrderDetailPage';
-import AdminBookCreatePage from './pages/AdminBookCreatePage';
+import PaymentPage from './pages/PaymentPage';
+import AdminBookFormPage from './pages/AdminBookFormPage';
 import AdminOrdersPage from './pages/AdminOrdersPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import AdminBankSettingsPage from './pages/AdminBankSettingsPage';
+import AdminCustomersPage from './pages/AdminCustomersPage';
 
 import PrivateRoute from './routes/PrivateRoute';
 import AdminRoute from './routes/AdminRoute';
 
 const NotFoundPage = () => (
-  <section style={{ padding: '24px' }}>
-    <h2>404 - Không tìm thấy trang</h2>
-  </section>
+  <div className="page"><h2 className="section-title">404 - Không tìm thấy trang</h2></div>
 );
 
 const App = () => {
   return (
     <>
       <Header />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/books" element={<BooksPage />} />
-        <Route path="/books/:id" element={<BookDetailPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+      <div className="flex-fill">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/books" element={<BooksPage />} />
+          <Route path="/books/:id" element={<BookDetailPage />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
-        <Route element={<PrivateRoute />}>
-          <Route path="/orders" element={<OrderHistoryPage />} />
-          <Route path="/orders/:id" element={<OrderDetailPage />} />
-        </Route>
+          <Route element={<PrivateRoute />}>
+            <Route path="/orders" element={<OrderHistoryPage />} />
+            <Route path="/orders/:id" element={<OrderDetailPage />} />
+            <Route path="/orders/:id/payment" element={<PaymentPage />} />
+          </Route>
 
-        <Route element={<AdminRoute />}>
-          <Route path="/admin/books" element={<BooksPage />} />
-          <Route path="/admin/books/new" element={<AdminBookCreatePage />} />
-          <Route path="/admin/orders" element={<AdminOrdersPage />} />
-          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-        </Route>
+          <Route element={<AdminRoute />}>
+            <Route path="/admin/books" element={<BooksPage />} />
+            <Route path="/admin/books/new" element={<AdminBookFormPage />} />
+            <Route path="/admin/books/:id/edit" element={<AdminBookFormPage />} />
+            <Route path="/admin/orders" element={<AdminOrdersPage />} />
+            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            <Route path="/admin/settings" element={<AdminBankSettingsPage />} />
+            <Route path="/admin/customers" element={<AdminCustomersPage />} />
+          </Route>
 
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-      <Footer studentName="Nguyen Van A" courseName="Full-Stack Web Development" />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </div>
+      <Footer studentName="Đinh Gia Khiêm" courseName="Full-Stack Web Development" />
     </>
   );
 };

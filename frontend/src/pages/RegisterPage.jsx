@@ -1,56 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { authApi } from '../api/authApi';
-
 const RegisterPage = () => {
-  const [form, setForm] = useState({ email: '', full_name: '', password: '' });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const navigate = useNavigate();
-
-  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
-    try {
-      await authApi.register(form);
-      setSuccess('Đăng ký thành công! Đang chuyển đến trang đăng nhập...');
-      setTimeout(() => navigate('/login'), 1200);
-    } catch (err) {
-      setError('Đăng ký thất bại. Email có thể đã tồn tại.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <section style={{ padding: '24px', maxWidth: '400px', margin: '0 auto' }}>
-      <h2>Đăng ký</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '12px' }}>
-          <label>Email</label>
-          <input type="email" name="email" value={form.email} onChange={handleChange} required style={{ width: '100%', padding: '8px' }} />
-        </div>
-        <div style={{ marginBottom: '12px' }}>
-          <label>Họ tên</label>
-          <input type="text" name="full_name" value={form.full_name} onChange={handleChange} required style={{ width: '100%', padding: '8px' }} />
-        </div>
-        <div style={{ marginBottom: '12px' }}>
-          <label>Mật khẩu (tối thiểu 6 ký tự)</label>
-          <input type="password" name="password" value={form.password} onChange={handleChange} required minLength={6} style={{ width: '100%', padding: '8px' }} />
-        </div>
-        <button type="submit" disabled={loading} style={{ padding: '8px 16px' }}>
-          {loading ? 'Đang đăng ký...' : 'Đăng ký'}
-        </button>
-      </form>
-      {error && <p style={{ color: 'red', marginTop: '12px' }}>{error}</p>}
-      {success && <p style={{ color: 'green', marginTop: '12px' }}>{success}</p>}
-    </section>
-  );
-};
-
-export default RegisterPage;
+  const [form, setForm] = useState({ email: '', full_name: '', phone: '', address: '', password: '' }); const [loading, setLoading] = useState(false); const [error, setError] = useState(''); const navigate = useNavigate(); const change = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const submit = async (e) => { e.preventDefault(); setLoading(true); setError(''); try { await authApi.register(form); navigate('/login'); } catch { setError('Đăng ký thất bại. Email có thể đã được sử dụng.'); } finally { setLoading(false); } };
+  return <div className="page-narrow auth-page"><span className="eyebrow">THAM GIA CÙNG VIETBOOK</span><h2 className="section-title">Tạo tài khoản mới</h2><p className="section-sub">Thông tin giao hàng của bạn được bảo mật.</p><div className="card card-pad"><form onSubmit={submit}><div className="field"><label>Họ và tên</label><input name="full_name" value={form.full_name} onChange={change} required className="input" /></div><div className="field"><label>Email</label><input type="email" name="email" value={form.email} onChange={change} required className="input" /></div><div className="field"><label>Số điện thoại</label><input type="tel" name="phone" value={form.phone} onChange={change} required minLength="8" className="input" placeholder="Ví dụ: 0901234567" /></div><div className="field"><label>Địa chỉ nhận hàng</label><textarea name="address" value={form.address} onChange={change} required minLength="8" rows="3" className="input" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành" /></div><div className="field"><label>Mật khẩu</label><input type="password" name="password" value={form.password} onChange={change} required minLength="6" className="input" /></div>{error && <div className="alert alert-error">{error}</div>}<button type="submit" disabled={loading} className="btn btn-primary btn-block">{loading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}</button></form></div><p className="auth-switch">Đã có tài khoản? <Link to="/login">Đăng nhập</Link></p></div>;
+}; export default RegisterPage;

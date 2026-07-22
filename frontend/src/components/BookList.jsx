@@ -1,14 +1,14 @@
 import BookCard from './BookCard';
 
-const BookList = ({ books, onDelete }) => {
+const BookList = ({ books }) => {
   if (!books || books.length === 0) {
-    return <p>Không tìm thấy sách nào phù hợp.</p>;
+    return <div className="empty-state">Không tìm thấy sách nào phù hợp.</div>;
   }
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '16px' }}>
+    <div className="book-grid">
       {books.map((book) => (
-        <BookCard key={book.id} book={book} onDelete={onDelete} />
+        <BookCard key={book.id} book={book} />
       ))}
     </div>
   );

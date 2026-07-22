@@ -1,57 +1,8 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../auth/useAuth';
-
 const Header = () => {
-  const { totalQuantity } = useCart();
-  const { isAuthenticated, role, user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  const linkStyle = ({ isActive }) => ({
-    marginRight: '14px',
-    textDecoration: 'none',
-    color: isActive ? '#1976d2' : '#555',
-    fontWeight: isActive ? 'bold' : 'normal',
-  });
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
-  return (
-    <header style={{ padding: '16px 24px', borderBottom: '1px solid #ddd', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <h1 style={{ margin: 0 }}>
-        <NavLink to="/" style={{ textDecoration: 'none', color: '#1976d2' }}>📚 Vietbook</NavLink>
-      </h1>
-      <nav style={{ display: 'flex', alignItems: 'center' }}>
-        <NavLink to="/" style={linkStyle} end>Home</NavLink>
-        <NavLink to="/books" style={linkStyle}>Books</NavLink>
-        <NavLink to="/cart" style={linkStyle}>Cart ({totalQuantity})</NavLink>
-
-        {isAuthenticated && (
-          <NavLink to="/orders" style={linkStyle}>Orders</NavLink>
-        )}
-
-        {role === 'ADMIN' && (
-          <>
-            <NavLink to="/admin/books" style={linkStyle}>Admin Books</NavLink>
-            <NavLink to="/admin/orders" style={linkStyle}>Admin Orders</NavLink>
-            <NavLink to="/admin/dashboard" style={linkStyle}>Dashboard</NavLink>
-          </>
-        )}
-
-        {isAuthenticated ? (
-          <>
-            <span style={{ marginRight: '12px', color: '#888', fontSize: '0.9rem' }}>{user?.full_name}</span>
-            <button onClick={handleLogout} style={{ padding: '6px 12px', cursor: 'pointer' }}>Logout</button>
-          </>
-        ) : (
-          <NavLink to="/login" style={linkStyle}>Login</NavLink>
-        )}
-      </nav>
-    </header>
-  );
+  const { totalQuantity } = useCart(); const { isAuthenticated, role, user, logout } = useAuth(); const navigate = useNavigate(); const isAdmin = role === 'ADMIN'; const linkClass = ({ isActive }) => `nav-link${isActive ? ' active' : ''}`;
+  return <header className="site-header"><div className="site-header-inner"><NavLink to="/" className="brand"><span className="brand-mark">V</span>Vietbook</NavLink><nav className="nav-links"><NavLink to="/" className={linkClass} end>Trang chủ</NavLink><NavLink to="/books" className={linkClass}>Sách</NavLink><NavLink to="/cart" className={linkClass}>Giỏ hàng{totalQuantity ? ` (${totalQuantity})` : ''}</NavLink>{isAuthenticated && <NavLink to="/orders" className={linkClass}>Đơn hàng</NavLink>}{isAdmin && <><span className="nav-divider"/><NavLink to="/admin/books" className={linkClass}>Quản lý sách</NavLink><NavLink to="/admin/orders" className={linkClass}>Quản lý đơn</NavLink><NavLink to="/admin/customers" className={linkClass}>Khách hàng</NavLink><NavLink to="/admin/dashboard" className={linkClass}>Dashboard</NavLink><NavLink to="/admin/settings" className={linkClass}>Cài đặt</NavLink></>}<span className="nav-divider"/>{isAuthenticated ? <><span className="user-chip">{user?.full_name}</span><button onClick={() => { logout(); navigate('/'); }} className="btn btn-outline btn-sm">Đăng xuất</button></> : <div className="auth-actions"><NavLink to="/login" className="nav-link">Đăng nhập</NavLink><NavLink to="/register" className="btn btn-primary btn-sm">Đăng ký</NavLink></div>}</nav></div></header>;
 };
-
 export default Header;

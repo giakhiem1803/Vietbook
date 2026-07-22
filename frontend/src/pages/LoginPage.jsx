@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { authApi } from '../api/authApi';
 import { setToken } from '../auth/token';
 import { setUserInfo } from '../auth/userInfo';
@@ -30,29 +30,34 @@ const LoginPage = () => {
   };
 
   return (
-    <section style={{ padding: '24px', maxWidth: '400px', margin: '0 auto' }}>
-      <h2>Đăng nhập</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '12px' }}>
-          <label>Email</label>
-          <input type="email" name="email" value={form.email} onChange={handleChange} required style={{ width: '100%', padding: '8px' }} />
-        </div>
-        <div style={{ marginBottom: '12px' }}>
-          <label>Mật khẩu</label>
-          <input type="password" name="password" value={form.password} onChange={handleChange} required style={{ width: '100%', padding: '8px' }} />
-        </div>
-        <button type="submit" disabled={loading} style={{ padding: '8px 16px' }}>
-          {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-        </button>
-      </form>
-      {error && <p style={{ color: 'red', marginTop: '12px' }}>{error}</p>}
-      <p style={{ marginTop: '16px', fontSize: '0.85rem', color: '#888' }}>
+    <div className="page-narrow">
+      <h2 className="section-title">Đăng nhập</h2>
+      <p className="section-sub">Chào mừng quay lại Vietbook</p>
+
+      <div className="card card-pad">
+        <form onSubmit={handleSubmit}>
+          <div className="field">
+            <label>Email</label>
+            <input type="email" name="email" value={form.email} onChange={handleChange} required className="input" />
+          </div>
+          <div className="field">
+            <label>Mật khẩu</label>
+            <input type="password" name="password" value={form.password} onChange={handleChange} required className="input" />
+          </div>
+          {error && <div className="alert alert-error">{error}</div>}
+          <button type="submit" disabled={loading} className="btn btn-primary btn-block">
+            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+          </button>
+        </form>
+      </div>
+
+      <p className="text-sm muted" style={{ marginTop: '14px', textAlign: 'center' }}>
         Tài khoản admin mẫu: admin@vietbook.com / admin123
       </p>
-      <p style={{ marginTop: '8px' }}>
-        Chưa có tài khoản? <a href="/register">Đăng ký</a>
+      <p className="text-sm" style={{ marginTop: '8px', textAlign: 'center' }}>
+        Chưa có tài khoản? <Link to="/register" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>Đăng ký</Link>
       </p>
-    </section>
+    </div>
   );
 };
 

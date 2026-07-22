@@ -1,36 +1,15 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../auth/useAuth';
+import { resolveImageUrl } from '../api/axiosClient';
 
-const BookCard = ({ book, onDelete }) => {
+const BookCard = ({ book }) => {
   const { addToCart } = useCart();
   const { role } = useAuth();
   const isAdmin = role === 'ADMIN';
-
-  return (
-    <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '12px', width: '220px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-      <img src={book.imageUrl} alt={book.title} style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '4px' }} />
-      <h3 style={{ margin: '4px 0', fontSize: '1rem' }}>{book.title}</h3>
-      <p style={{ margin: 0, color: '#757575', fontSize: '0.9rem' }}>{book.author}</p>
-      <p style={{ margin: 0, color: '#999', fontSize: '0.8rem' }}>{book.genre}</p>
-      <p style={{ margin: '4px 0', fontWeight: 'bold' }}>{book.price.toLocaleString('vi-VN')} đ</p>
-
-      <div style={{ display: 'flex', gap: '6px', marginTop: 'auto' }}>
-        <Link to={`/books/${book.id}`} style={{ flex: 1, textAlign: 'center', padding: '8px', backgroundColor: '#eee', borderRadius: '4px', textDecoration: 'none', color: '#333' }}>
-          Chi tiết
-        </Link>
-        <button onClick={() => addToCart(book, 1)} style={{ flex: 1, padding: '8px', backgroundColor: '#1976d2', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-          Thêm giỏ
-        </button>
-      </div>
-
-      {isAdmin && onDelete && (
-        <button onClick={() => onDelete(book.id)} style={{ marginTop: '4px', padding: '6px', backgroundColor: '#d32f2f', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-          Xóa
-        </button>
-      )}
-    </div>
-  );
+  return <article className="book-card">
+    <Link to={`/books/${book.id}`} className="book-cover-wrap"><img src={resolveImageUrl(book.imageUrl)} alt={`Bìa sách ${book.title}`} className="book-card-img" /><span className="book-genre-chip">{book.genre}</span></Link>
+    <div className="book-card-body"><p className="book-card-author">{book.author}</p><Link to={`/books/${book.id}`} className="book-card-title">{book.title}</Link><div className="book-price-row"><span className="book-card-price">{book.price.toLocaleString('vi-VN')} đ</span><span className="stock-label">{book.stock > 0 ? 'Còn hàng' : 'Hết hàng'}</span></div><div className="book-card-actions">{isAdmin ? <Link to={`/admin/books/${book.id}/edit`} className="btn btn-outline btn-sm btn-block">Quản lý sách</Link> : <button onClick={() => addToCart(book, 1)} disabled={book.stock <= 0} className="btn btn-primary btn-sm btn-block">Thêm vào giỏ +</button>}</div></div>
+  </article>;
 };
-
 export default BookCard;

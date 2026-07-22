@@ -61,4 +61,13 @@ export const ordersApi = {
       throw error;
     }
   },
+  async startMomoPayment(orderId) {
+    try {
+      const response = await axiosClient.post(`/payments/momo/${orderId}`, {}, { headers: authHeader() });
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to start MoMo payment');
+      throw error;
+    }
+  },
 };

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ordersApi } from '../api/ordersApi';
 import { useAuth } from '../auth/useAuth';
+import StatusBadge from '../components/StatusBadge';
 
 const ALLOWED_STATUSES = ['PLACED', 'PROCESSING', 'SHIPPED', 'COMPLETED', 'CANCELED'];
 
@@ -26,9 +27,7 @@ const OrderDetailPage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchOrder();
-  }, [id]);
+  useEffect(() => { fetchOrder(); }, [id]);
 
   const handleStatusChange = async (e) => {
     try {
@@ -39,49 +38,47 @@ const OrderDetailPage = () => {
     }
   };
 
-  if (loading) return <p style={{ padding: '24px' }}>Đang tải...</p>;
-  if (error) return <p style={{ padding: '24px', color: 'red' }}>{error}</p>;
-  if (!order) return <p style={{ padding: '24px' }}>Không tìm thấy đơn hàng.</p>;
+  if (loading) return <div className="page"><p className="muted">Đang tải...</p></div>;
+  if (error) return <div className="page"><div className="alert alert-error">{error}</div></div>;
+  if (!order) return <div className="page"><p className="muted">Không tìm thấy đơn hàng.</p></div>;
 
   return (
-    <section style={{ padding: '24px' }}>
-      <Link to="/orders" style={{ display: 'inline-block', marginBottom: '16px' }}>← Quay lại danh sách đơn</Link>
-      <h2>Đơn hàng #{order.id}</h2>
-      <p>
-        Trạng thái:{' '}
+    <div className="page">
+      <Link to="/orders" className="text-sm muted" style={{ display: 'inline-block', marginBottom: '16px' }}>← Quay lại danh sách đơn</Link>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+        <h2 className="section-title">Đơn hàng #{order.id}</h2>
         {isAdmin ? (
-          <select value={order.status} onChange={handleStatusChange}>
+          <select value={order.status} onChange={handleStatusChange} className="input" style={{ maxWidth: '200px' }}>
             {ALLOWED_STATUSES.map((st) => <option key={st} value={st}>{st}</option>)}
           </select>
         ) : (
-          <strong>{order.status}</strong>
+          <StatusBadge status={order.status} />
         )}
-      </p>
-      <p>Tổng tiền: <strong>{order.total_amount.toLocaleString('vi-VN')} đ</strong></p>
-      <p>Ngày đặt: {new Date(order.created_at).toLocaleString('vi-VN')}</p>
+      </div>
 
-      <h3 style={{ marginTop: '16px' }}>Sản phẩm</h3>
-      <table style={{ width: '100%', marginTop: '8px', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th align="left">Sách</th>
-            <th align="center">Giá</th>
-            <th align="center">Số lượng</th>
-            <th align="center">Tạm tính</th>
-          </tr>
-        </thead>
-        <tbody>
-          {order.items.map((item) => (
-            <tr key={item.id} style={{ borderBottom: '1px solid #eee' }}>
-              <td>{item.book_title}</td>
-              <td align="center">{item.book_price.toLocaleString('vi-VN')} đ</td>
-              <td align="center">{item.quantity}</td>
-              <td align="center">{item.line_total.toLocaleString('vi-VN')} đ</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </section>
+      <p className="section-sub">Ngày đặt: {new Date(order.created_at).toLocaleString('vi-VN')}</p>
+
+      <div className="card" style={{ marginTop: '10px' }}>
+        <table className="table">
+          <thead><tr><th>Sách</th><th align="center">Giá</th><th align="center">Số lượng</th><th align="center">Tạm tính</th></tr></thead>
+          <tbody>
+            {order.items.map((item) => (
+              <tr key={item.id}>
+                <td>{item.book_title}</td>
+                <td align="center">{item.book_price.toLocaleString('vi-VN')} đ</td>
+                <td align="center">{item.quantity}</td>
+                <td align="center">{item.line_total.toLocaleString('vi-VN')} đ</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p style={{ textAlign: 'right', marginTop: '12px', fontSize: '1.1rem' }}>
+        Tổng cộng: <strong>{order.total_amount.toLocaleString('vi-VN')} đ</strong>
+      </p>
+    </div>
   );
 };
 

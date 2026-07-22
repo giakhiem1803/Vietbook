@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ordersApi } from '../api/ordersApi';
+import StatusBadge from '../components/StatusBadge';
 
 const OrderHistoryPage = () => {
   const [orders, setOrders] = useState([]);
@@ -21,44 +22,33 @@ const OrderHistoryPage = () => {
     fetchOrders();
   }, []);
 
-  if (loading) return <p style={{ padding: '24px' }}>Đang tải...</p>;
-  if (error) return <p style={{ padding: '24px', color: 'red' }}>{error}</p>;
-
-  if (orders.length === 0) {
-    return (
-      <section style={{ padding: '24px' }}>
-        <h2>Lịch sử đơn hàng</h2>
-        <p>Bạn chưa có đơn hàng nào.</p>
-      </section>
-    );
-  }
+  if (loading) return <div className="page"><p className="muted">Đang tải...</p></div>;
+  if (error) return <div className="page"><div className="alert alert-error">{error}</div></div>;
 
   return (
-    <section style={{ padding: '24px' }}>
-      <h2>Lịch sử đơn hàng</h2>
-      <table style={{ width: '100%', marginTop: '16px', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th align="left">Mã đơn</th>
-            <th align="center">Trạng thái</th>
-            <th align="center">Tổng tiền</th>
-            <th align="center">Ngày đặt</th>
-            <th align="center">Chi tiết</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((o) => (
-            <tr key={o.id} style={{ borderBottom: '1px solid #eee' }}>
-              <td>#{o.id}</td>
-              <td align="center">{o.status}</td>
-              <td align="center">{o.total_amount.toLocaleString('vi-VN')} đ</td>
-              <td align="center">{new Date(o.created_at).toLocaleString('vi-VN')}</td>
-              <td align="center"><Link to={`/orders/${o.id}`}>Xem</Link></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </section>
+    <div className="page">
+      <h2 className="section-title">Lịch sử đơn hàng</h2>
+      {orders.length === 0 ? (
+        <div className="empty-state">Bạn chưa có đơn hàng nào.</div>
+      ) : (
+        <div className="card" style={{ marginTop: '16px' }}>
+          <table className="table">
+            <thead><tr><th>Mã đơn</th><th align="center">Trạng thái</th><th align="center">Tổng tiền</th><th align="center">Ngày đặt</th><th align="center"></th></tr></thead>
+            <tbody>
+              {orders.map((o) => (
+                <tr key={o.id}>
+                  <td>#{o.id}</td>
+                  <td align="center"><StatusBadge status={o.status} /></td>
+                  <td align="center">{o.total_amount.toLocaleString('vi-VN')} đ</td>
+                  <td align="center">{new Date(o.created_at).toLocaleString('vi-VN')}</td>
+                  <td align="center"><Link to={`/orders/${o.id}`} className="btn btn-outline btn-sm">Xem</Link></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 };
 

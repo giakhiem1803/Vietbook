@@ -35,11 +35,51 @@ export const booksApi = {
       throw error;
     }
   },
+  async update(id, payload) {
+    try {
+      const response = await axiosClient.put(`/books/${id}`, payload, { headers: authHeader() });
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to update book');
+      throw error;
+    }
+  },
   async delete(id) {
     try {
       await axiosClient.delete(`/books/${id}`, { headers: authHeader() });
     } catch (error) {
       handleApiError(error, 'Failed to delete book');
+      throw error;
+    }
+  },
+  async uploadImage(id, file) {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await axiosClient.post(`/books/${id}/image`, formData, {
+        headers: { ...authHeader(), 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to upload image');
+      throw error;
+    }
+  },
+  async restock(id, payload) {
+    try {
+      const response = await axiosClient.post(`/books/${id}/restock`, payload, { headers: authHeader() });
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to restock');
+      throw error;
+    }
+  },
+  async getStockLogs(id) {
+    try {
+      const response = await axiosClient.get(`/books/${id}/stock-logs`, { headers: authHeader() });
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to fetch stock logs');
       throw error;
     }
   },

@@ -1,13 +1,6 @@
 import { useEffect, useState } from 'react';
 import { adminStatsApi } from '../api/adminStatsApi';
 
-const Card = ({ title, value, color }) => (
-  <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '20px', backgroundColor: '#fafafa', flex: 1, minWidth: '160px' }}>
-    <p style={{ margin: 0, color: '#777' }}>{title}</p>
-    <h2 style={{ margin: '8px 0 0', color: color || '#1976d2' }}>{value}</h2>
-  </div>
-);
-
 const AdminDashboardPage = () => {
   const [overview, setOverview] = useState(null);
   const [monthly, setMonthly] = useState({ months: [], revenues: [] });
@@ -29,44 +22,42 @@ const AdminDashboardPage = () => {
     fetchStats();
   }, []);
 
-  if (loading) return <p style={{ padding: '24px' }}>Đang tải...</p>;
-  if (error) return <p style={{ padding: '24px', color: 'red' }}>{error}</p>;
+  if (loading) return <div className="page"><p className="muted">Đang tải...</p></div>;
+  if (error) return <div className="page"><div className="alert alert-error">{error}</div></div>;
 
   const maxRevenue = Math.max(...monthly.revenues, 1);
 
   return (
-    <section style={{ padding: '24px' }}>
-      <h2>Admin Dashboard</h2>
+    <div className="page">
+      <h2 className="section-title">Admin Dashboard</h2>
+      <p className="section-sub">Tổng quan hoạt động kinh doanh</p>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '16px' }}>
-        <Card title="Tổng số sách" value={overview.total_products} color="#1976d2" />
-        <Card title="Tổng đơn hàng" value={overview.total_orders} color="#f57c00" />
-        <Card title="Tổng doanh thu" value={`${overview.total_revenue.toLocaleString('vi-VN')} đ`} color="#2e7d32" />
-        <Card title="Tổng người dùng" value={overview.total_users} color="#7b1fa2" />
+      <div className="stat-grid">
+        <div className="stat-card"><div className="label">Tổng số sách</div><div className="value">{overview.total_products}</div></div>
+        <div className="stat-card"><div className="label">Tổng đơn hàng</div><div className="value">{overview.total_orders}</div></div>
+        <div className="stat-card"><div className="label">Tổng doanh thu</div><div className="value">{overview.total_revenue.toLocaleString('vi-VN')} đ</div></div>
+        <div className="stat-card"><div className="label">Tổng người dùng</div><div className="value">{overview.total_users}</div></div>
       </div>
 
-      <h3 style={{ marginTop: '32px' }}>Doanh thu theo tháng</h3>
-      {monthly.months.length === 0 ? (
-        <p>Chưa có dữ liệu doanh thu.</p>
-      ) : (
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px', height: '200px', marginTop: '16px', borderBottom: '1px solid #ccc' }}>
-          {monthly.months.map((m, idx) => (
-            <div key={m} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-              <div
-                title={`${monthly.revenues[idx].toLocaleString('vi-VN')} đ`}
-                style={{
-                  width: '40px',
-                  height: `${(monthly.revenues[idx] / maxRevenue) * 160}px`,
-                  backgroundColor: '#1976d2',
-                  borderRadius: '4px 4px 0 0',
-                }}
-              />
-              <span style={{ fontSize: '0.75rem', color: '#777' }}>{m}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </section>
+      <h3 style={{ marginTop: '32px', fontSize: '1.1rem' }}>Doanh thu theo tháng</h3>
+      <div className="card card-pad" style={{ marginTop: '12px' }}>
+        {monthly.months.length === 0 ? (
+          <p className="muted">Chưa có dữ liệu doanh thu.</p>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '16px', height: '200px' }}>
+            {monthly.months.map((m, idx) => (
+              <div key={m} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                <div
+                  title={`${monthly.revenues[idx].toLocaleString('vi-VN')} đ`}
+                  style={{ width: '36px', height: `${(monthly.revenues[idx] / maxRevenue) * 160}px`, background: 'var(--color-text)', borderRadius: '4px 4px 0 0' }}
+                />
+                <span className="text-sm muted">{m}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
