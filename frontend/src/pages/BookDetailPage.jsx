@@ -46,7 +46,7 @@ const BookDetailPage = () => {
       <Link to="/books" className="text-sm muted" style={{ display: 'inline-block', marginBottom: '20px' }}>← Quay lại danh sách</Link>
       <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
         {!imageFailed && book.imageUrl ? (
-          <img src={resolveImageUrl(book.imageUrl)} alt={book.title} onError={() => setImageFailed(true)} style={{ width: '280px', aspectRatio: '3/4', objectFit: 'cover', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)' }} />
+          <img src={resolveImageUrl(book.imageUrl)} alt={book.title} onLoad={(event) => { if (event.currentTarget.naturalWidth < 50 || event.currentTarget.naturalHeight < 50) setImageFailed(true); }} onError={() => setImageFailed(true)} style={{ width: '280px', aspectRatio: '3/4', objectFit: 'cover', borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-md)' }} />
         ) : <div className="detail-cover"><FallbackCover book={book} /></div>}
         <div style={{ flex: 1, minWidth: '260px' }}>
           <span className="book-card-genre">{book.genre}</span>
