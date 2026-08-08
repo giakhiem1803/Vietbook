@@ -42,9 +42,11 @@ apply_cover_corrections()
 def ensure_schema_columns():
     """Additive migration for pre-existing local SQLite and Render PostgreSQL DBs."""
     with engine.begin() as connection:
+        # SQLite accepts DATETIME; PostgreSQL requires TIMESTAMP instead.
+        timestamp_type = "DATETIME" if connection.dialect.name == "sqlite" else "TIMESTAMP WITH TIME ZONE"
         tables = {
             "users": {"phone": "VARCHAR(20)", "address": "VARCHAR(500)"},
-            "orders": {"receiver_name": "VARCHAR(100)", "receiver_phone": "VARCHAR(20)", "shipping_address": "VARCHAR(500)", "payment_method": "VARCHAR(30) DEFAULT 'BANK_TRANSFER'", "payment_status": "VARCHAR(30) DEFAULT 'PENDING'", "transaction_code": "VARCHAR(80)", "discount_amount": "FLOAT DEFAULT 0", "shipping_fee": "FLOAT DEFAULT 0", "coupon_code": "VARCHAR(50)", "momo_order_id": "VARCHAR(100)", "momo_trans_id": "VARCHAR(100)", "updated_at": "DATETIME"},
+            "orders": {"receiver_name": "VARCHAR(100)", "receiver_phone": "VARCHAR(20)", "shipping_address": "VARCHAR(500)", "payment_method": "VARCHAR(30) DEFAULT 'BANK_TRANSFER'", "payment_status": "VARCHAR(30) DEFAULT 'PENDING'", "transaction_code": "VARCHAR(80)", "discount_amount": "FLOAT DEFAULT 0", "shipping_fee": "FLOAT DEFAULT 0", "coupon_code": "VARCHAR(50)", "momo_order_id": "VARCHAR(100)", "momo_trans_id": "VARCHAR(100)", "updated_at": timestamp_type},
             "payment_transactions": {"note": "TEXT"},
         }
         inspector = inspect(connection)
