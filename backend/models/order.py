@@ -15,11 +15,17 @@ class OrderDB(Base):
     shipping_address = Column(String(500), nullable=True)
     payment_method = Column(String(30), nullable=False, default="BANK_TRANSFER")
     payment_status = Column(String(30), nullable=False, default="PENDING")
+    transaction_code = Column(String(80), nullable=True, unique=True, index=True)
+    discount_amount = Column(Float, nullable=False, default=0)
+    shipping_fee = Column(Float, nullable=False, default=0)
+    coupon_code = Column(String(50), nullable=True)
     momo_order_id = Column(String(100), nullable=True, unique=True)
     momo_trans_id = Column(String(100), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     items = relationship("OrderItemDB", back_populates="order", cascade="all, delete-orphan")
+    payments = relationship("PaymentTransactionDB", back_populates="order", cascade="all, delete-orphan")
 
 
 class OrderItemDB(Base):

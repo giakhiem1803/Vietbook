@@ -4,12 +4,14 @@ import { useCart } from '../context/CartContext';
 import { ordersApi } from '../api/ordersApi';
 import { useAuth } from '../auth/useAuth';
 import { resolveImageUrl } from '../api/axiosClient';
+import { getApiErrorMessage } from '../api/errorHandler';
 
 const CartPage = () => {
   const { items, removeFromCart, updateQuantity, totalQuantity, totalPrice, clearCart } = useCart();
   const { isAuthenticated } = useAuth();
   const [placingOrder, setPlacingOrder] = useState(false);
   const [error, setError] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('VIETQR');
   const navigate = useNavigate();
 
   const handleCheckout = async () => {
@@ -21,11 +23,11 @@ const CartPage = () => {
     setPlacingOrder(true);
     setError('');
     try {
-      const order = await ordersApi.checkout(items);
+      const order = await ordersApi.checkout(items, paymentMethod);
       clearCart();
       navigate(`/orders/${order.id}/payment`);
-    } catch {
-      setError('Đặt hàng thất bại. Vui lòng thử lại.');
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError, 'Đặt hàng thất bại. Vui lòng thử lại.'));
     } finally {
       setPlacingOrder(false);
     }
@@ -77,6 +79,12 @@ const CartPage = () => {
 
       {error && <div className="alert alert-error" style={{ marginTop: '16px' }}>{error}</div>}
 
+      <div className="card card-pad checkout-method">
+        <strong>Phương thức thanh toán</strong>
+        <label><input type="radio" checked={paymentMethod === 'VIETQR'} onChange={() => setPaymentMethod('VIETQR')} /> VietQR (Admin xác nhận)</label>
+        <label><input type="radio" checked={paymentMethod === 'MOMO_QR'} onChange={() => setPaymentMethod('MOMO_QR')} /> QR MoMo (Admin xác nhận)</label>
+        <label><input type="radio" checked={paymentMethod === 'COD'} onChange={() => setPaymentMethod('COD')} /> COD - thanh toán khi nhận hàng</label>
+      </div>
       <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
         <button onClick={clearCart} className="btn btn-outline">Xóa hết giỏ hàng</button>
         <button onClick={handleCheckout} disabled={placingOrder} className="btn btn-primary">

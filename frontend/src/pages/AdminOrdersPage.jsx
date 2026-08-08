@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ordersApi } from '../api/ordersApi';
 import StatusBadge from '../components/StatusBadge';
+import { getApiErrorMessage } from '../api/errorHandler';
 
 const AdminOrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -13,8 +14,8 @@ const AdminOrdersPage = () => {
       try {
         const data = await ordersApi.getAllForAdmin();
         setOrders(data);
-      } catch {
-        setError('Không tải được danh sách đơn hàng.');
+      } catch (requestError) {
+        setError(getApiErrorMessage(requestError, 'Không tải được danh sách đơn hàng.'));
       } finally {
         setLoading(false);
       }

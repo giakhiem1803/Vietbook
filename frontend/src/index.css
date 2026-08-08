@@ -169,6 +169,19 @@ h1, h2, h3 { letter-spacing: -0.02em; margin: 0; }
 .alert-success { background: var(--color-success-soft); color: var(--color-success); }
 .alert-info { background: var(--color-accent-soft); color: var(--color-accent); }
 .empty-state { text-align: center; padding: 60px 20px; color: var(--color-text-muted); }
+.checkout-method { margin-top: 20px; display: grid; gap: 10px; }
+.checkout-method label { color: var(--color-text-muted); font-size: .9rem; }
+.checkout-method input { margin-right: 8px; }
+.dashboard-head { display:flex; justify-content:space-between; gap:16px; align-items:start; flex-wrap:wrap; }
+.dashboard-filter { width:auto; min-width:180px; }
+.dashboard-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin-top:18px; }
+.dashboard-grid h3 { font-size:1rem; margin-bottom:14px; }
+.bar-chart { display:flex; gap:9px; align-items:end; min-height:190px; overflow-x:auto; padding-top:12px; }
+.bar-col { min-width:34px; display:flex; flex-direction:column; align-items:center; justify-content:end; gap:5px; font-size:.7rem; color:var(--color-text-muted); }
+.bar { width:26px; background:linear-gradient(#60a5fa,#2563eb); border-radius:6px 6px 2px 2px; }
+.status-row { display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px solid var(--color-border); font-size:.88rem; }
+.status-row:last-child { border-bottom:0; }
+@media (max-width:640px) { .dashboard-grid { grid-template-columns:1fr; } }
 
 /* ===== Hero (Home) ===== */
 .home-page { overflow: hidden; }

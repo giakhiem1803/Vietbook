@@ -4,10 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from database import engine, Base, SessionLocal
-from sqlalchemy import text
+from sqlalchemy import text, inspect
 from models.book import BookDB
 from models.user import UserDB
 from models.order import OrderDB, OrderItemDB
+from models.payment import PaymentTransactionDB
 from models.settings import BankSettingDB
 from models.stock_log import StockLogDB
 from routers import books, auth, orders, admin_stats, settings, payments
@@ -38,31 +39,38 @@ def apply_cover_corrections():
 apply_cover_corrections()
 
 # Lightweight migration for existing SQLite databases created before customer details.
-def ensure_sqlite_columns():
-    if not str(engine.url).startswith("sqlite"):
-        return
+def ensure_schema_columns():
+    """Additive migration for pre-existing local SQLite and Render PostgreSQL DBs."""
     with engine.begin() as connection:
         tables = {
             "users": {"phone": "VARCHAR(20)", "address": "VARCHAR(500)"},
-            "orders": {"receiver_name": "VARCHAR(100)", "receiver_phone": "VARCHAR(20)", "shipping_address": "VARCHAR(500)", "payment_method": "VARCHAR(30) DEFAULT 'BANK_TRANSFER'", "payment_status": "VARCHAR(30) DEFAULT 'PENDING'", "momo_order_id": "VARCHAR(100)", "momo_trans_id": "VARCHAR(100)"},
+            "orders": {"receiver_name": "VARCHAR(100)", "receiver_phone": "VARCHAR(20)", "shipping_address": "VARCHAR(500)", "payment_method": "VARCHAR(30) DEFAULT 'BANK_TRANSFER'", "payment_status": "VARCHAR(30) DEFAULT 'PENDING'", "transaction_code": "VARCHAR(80)", "discount_amount": "FLOAT DEFAULT 0", "shipping_fee": "FLOAT DEFAULT 0", "coupon_code": "VARCHAR(50)", "momo_order_id": "VARCHAR(100)", "momo_trans_id": "VARCHAR(100)", "updated_at": "DATETIME"},
+            "payment_transactions": {"note": "TEXT"},
         }
+        inspector = inspect(connection)
         for table, columns in tables.items():
-            existing = {row[1] for row in connection.execute(text(f"PRAGMA table_info({table})"))}
+            if table not in inspector.get_table_names():
+                continue
+            existing = {column["name"] for column in inspector.get_columns(table)}
             for name, type_sql in columns.items():
                 if name not in existing:
                     connection.execute(text(f"ALTER TABLE {table} ADD COLUMN {name} {type_sql}"))
 
-ensure_sqlite_columns()
+ensure_schema_columns()
 
 os.makedirs("static/book_images", exist_ok=True)
 
 app = FastAPI(title="Vietbook API", version="1.0.0")
 
 origins = [item.strip() for item in os.getenv("FRONTEND_ORIGINS", "http://localhost:5173").split(",") if item.strip()]
+# Vite can fall back to another local port or be opened through 127.0.0.1.
+# Production remains restricted by FRONTEND_ORIGINS; the regex is local-only.
+local_origin_regex = r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=local_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

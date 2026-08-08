@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ordersApi } from '../api/ordersApi';
 import StatusBadge from '../components/StatusBadge';
+import { getApiErrorMessage } from '../api/errorHandler';
 
 const OrderHistoryPage = () => {
   const [orders, setOrders] = useState([]);
@@ -13,8 +14,8 @@ const OrderHistoryPage = () => {
       try {
         const data = await ordersApi.getMyOrders();
         setOrders(data);
-      } catch {
-        setError('Không tải được lịch sử đơn hàng.');
+      } catch (requestError) {
+        setError(getApiErrorMessage(requestError, 'Không tải được lịch sử đơn hàng.'));
       } finally {
         setLoading(false);
       }

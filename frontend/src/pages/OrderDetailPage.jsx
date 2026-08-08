@@ -4,82 +4,16 @@ import { ordersApi } from '../api/ordersApi';
 import { useAuth } from '../auth/useAuth';
 import StatusBadge from '../components/StatusBadge';
 
-const ALLOWED_STATUSES = ['PLACED', 'PROCESSING', 'SHIPPED', 'COMPLETED', 'CANCELED'];
-
+const ALLOWED_STATUSES = ['PENDING_PAYMENT', 'COD_PENDING', 'PAID', 'PROCESSING', 'SHIPPED', 'COMPLETED', 'CANCELED'];
 const OrderDetailPage = () => {
-  const { id } = useParams();
-  const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const { role } = useAuth();
-  const isAdmin = role === 'ADMIN';
-
-  const fetchOrder = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const data = await ordersApi.getOrderById(id);
-      setOrder(data);
-    } catch {
-      setError('Không tải được chi tiết đơn hàng.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  const { id } = useParams(); const [order, setOrder] = useState(null); const [loading, setLoading] = useState(true); const [error, setError] = useState('');
+  const { role } = useAuth(); const isAdmin = role === 'ADMIN';
+  const fetchOrder = async () => { setLoading(true); try { setOrder(await ordersApi.getOrderById(id)); } catch { setError('Không tải được chi tiết đơn hàng.'); } finally { setLoading(false); } };
   useEffect(() => { fetchOrder(); }, [id]);
-
-  const handleStatusChange = async (e) => {
-    try {
-      const updated = await ordersApi.updateStatus(order.id, e.target.value);
-      setOrder(updated);
-    } catch {
-      alert('Cập nhật trạng thái thất bại.');
-    }
-  };
-
+  const updateOrder = async (event) => { try { setOrder(await ordersApi.updateStatus(order.id, event.target.value)); } catch { alert('Cập nhật trạng thái thất bại.'); } };
+  const updatePayment = async (status) => { const payment = order?.payments?.[0]; if (!payment) return; try { const updated = await ordersApi.updatePaymentStatus(payment.id, status); setOrder({ ...order, payment_status: updated.status, payments: [updated], status: status === 'PAID' && ['PENDING_PAYMENT', 'COD_PENDING'].includes(order.status) ? 'PAID' : order.status }); } catch { alert('Cập nhật giao dịch thất bại.'); } };
   if (loading) return <div className="page"><p className="muted">Đang tải...</p></div>;
-  if (error) return <div className="page"><div className="alert alert-error">{error}</div></div>;
-  if (!order) return <div className="page"><p className="muted">Không tìm thấy đơn hàng.</p></div>;
-
-  return (
-    <div className="page">
-      <Link to="/orders" className="text-sm muted" style={{ display: 'inline-block', marginBottom: '16px' }}>← Quay lại danh sách đơn</Link>
-
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-        <h2 className="section-title">Đơn hàng #{order.id}</h2>
-        {isAdmin ? (
-          <select value={order.status} onChange={handleStatusChange} className="input" style={{ maxWidth: '200px' }}>
-            {ALLOWED_STATUSES.map((st) => <option key={st} value={st}>{st}</option>)}
-          </select>
-        ) : (
-          <StatusBadge status={order.status} />
-        )}
-      </div>
-
-      <p className="section-sub">Ngày đặt: {new Date(order.created_at).toLocaleString('vi-VN')}</p>
-
-      <div className="card" style={{ marginTop: '10px' }}>
-        <table className="table">
-          <thead><tr><th>Sách</th><th align="center">Giá</th><th align="center">Số lượng</th><th align="center">Tạm tính</th></tr></thead>
-          <tbody>
-            {order.items.map((item) => (
-              <tr key={item.id}>
-                <td>{item.book_title}</td>
-                <td align="center">{item.book_price.toLocaleString('vi-VN')} đ</td>
-                <td align="center">{item.quantity}</td>
-                <td align="center">{item.line_total.toLocaleString('vi-VN')} đ</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <p style={{ textAlign: 'right', marginTop: '12px', fontSize: '1.1rem' }}>
-        Tổng cộng: <strong>{order.total_amount.toLocaleString('vi-VN')} đ</strong>
-      </p>
-    </div>
-  );
+  if (error || !order) return <div className="page"><div className="alert alert-error">{error || 'Không tìm thấy đơn hàng.'}</div></div>;
+  return <div className="page"><Link to="/orders" className="text-sm muted" style={{ display: 'inline-block', marginBottom: 16 }}>← Quay lại danh sách đơn</Link><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}><h2 className="section-title">Đơn hàng #{order.id}</h2>{isAdmin ? <select value={order.status} onChange={updateOrder} className="input" style={{ maxWidth: 220 }}>{ALLOWED_STATUSES.map((status) => <option key={status} value={status}>{status}</option>)}</select> : <StatusBadge status={order.status} />}</div><p className="section-sub">Ngày đặt: {new Date(order.created_at).toLocaleString('vi-VN')}</p><section className="card card-pad"><strong>Thanh toán: {order.payment_method}</strong><p className="muted text-sm">Trạng thái: {order.payment_status} · Mã giao dịch: {order.transaction_code || '—'}</p>{isAdmin && order.payments?.[0] && <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}><button className="btn btn-primary btn-sm" onClick={() => updatePayment('PAID')}>Xác nhận thanh toán / COD</button><button className="btn btn-danger btn-sm" onClick={() => updatePayment('FAILED')}>Từ chối</button></div>}</section><div className="card" style={{ marginTop: 10 }}><table className="table"><thead><tr><th>Sách</th><th align="center">Đơn giá</th><th align="center">SL</th><th align="center">Thành tiền</th></tr></thead><tbody>{order.items.map((item) => <tr key={item.id}><td>{item.book_title}</td><td align="center">{item.book_price.toLocaleString('vi-VN')} đ</td><td align="center">{item.quantity}</td><td align="center">{item.line_total.toLocaleString('vi-VN')} đ</td></tr>)}</tbody></table></div><p style={{ textAlign: 'right', marginTop: 12 }} className="muted">Giảm giá: {(order.discount_amount || 0).toLocaleString('vi-VN')} đ · Phí ship: {(order.shipping_fee || 0).toLocaleString('vi-VN')} đ</p><p style={{ textAlign: 'right', fontSize: '1.1rem' }}>Tổng cộng: <strong>{order.total_amount.toLocaleString('vi-VN')} đ</strong></p></div>;
 };
-
 export default OrderDetailPage;

@@ -1,29 +1,12 @@
 import axiosClient from './axiosClient';
-import { handleApiError } from './errorHandler';
 import { getToken } from '../auth/token';
-
-function authHeader() {
-  const token = getToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
+const headers = () => ({ Authorization: `Bearer ${getToken()}` });
+const get = (path, params) => axiosClient.get(path, { headers: headers(), params }).then((r) => r.data);
 export const adminStatsApi = {
-  async getOverview() {
-    try {
-      const response = await axiosClient.get('/admin/stats/overview', { headers: authHeader() });
-      return response.data;
-    } catch (error) {
-      handleApiError(error, 'Failed to fetch overview stats');
-      throw error;
-    }
-  },
-  async getMonthlyRevenue() {
-    try {
-      const response = await axiosClient.get('/admin/stats/monthly-revenue', { headers: authHeader() });
-      return response.data;
-    } catch (error) {
-      handleApiError(error, 'Failed to fetch monthly revenue');
-      throw error;
-    }
-  },
+  getOverview: (params) => get('/admin/stats/overview', params),
+  getRevenueSeries: (params) => get('/admin/stats/revenue-series', params),
+  getOrderStatuses: (params) => get('/admin/stats/order-statuses', params),
+  getTopBooks: (params) => get('/admin/stats/top-books', params),
+  getRecentOrders: () => get('/admin/stats/recent-orders'),
+  getLowStock: () => get('/admin/stats/low-stock'),
 };

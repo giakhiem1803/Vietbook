@@ -8,13 +8,12 @@ function authHeader() {
 }
 
 export const ordersApi = {
-  async checkout(cartItems) {
+  async checkout(cartItems, paymentMethod = 'VIETQR') {
     try {
       const payload = {
+        payment_method: paymentMethod,
         items: cartItems.map((item) => ({
           book_id: item.id,
-          title: item.name,
-          price: item.price,
           quantity: item.quantity,
         })),
       };
@@ -61,13 +60,17 @@ export const ordersApi = {
       throw error;
     }
   },
-  async startMomoPayment(orderId) {
+  async submitPayment(paymentId) {
     try {
-      const response = await axiosClient.post(`/payments/momo/${orderId}`, {}, { headers: authHeader() });
+      const response = await axiosClient.post(`/payments/${paymentId}/submit`, {}, { headers: authHeader() });
       return response.data;
     } catch (error) {
       handleApiError(error, 'Failed to start MoMo payment');
       throw error;
     }
+  },
+  async updatePaymentStatus(paymentId, status, note = '') {
+    const response = await axiosClient.patch(`/payments/${paymentId}/admin-status`, { status, note }, { headers: authHeader() });
+    return response.data;
   },
 };

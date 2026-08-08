@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { settingsApi } from '../api/settingsApi';
+import { getApiErrorMessage } from '../api/errorHandler';
 
 const BANKS = [
   { name: 'Vietcombank', bin: '970436' },
@@ -26,8 +27,8 @@ const AdminBankSettingsPage = () => {
       try {
         const data = await settingsApi.getBank();
         setForm(data);
-      } catch {
-        setError('Không tải được cài đặt.');
+      } catch (requestError) {
+        setError(getApiErrorMessage(requestError, 'Không tải được cài đặt.'));
       } finally {
         setLoading(false);
       }
@@ -52,8 +53,8 @@ const AdminBankSettingsPage = () => {
     try {
       await settingsApi.updateBank(form);
       setSuccess('Đã lưu thông tin ngân hàng.');
-    } catch {
-      setError('Lưu thất bại.');
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError, 'Lưu thất bại.'));
     } finally {
       setSaving(false);
     }
