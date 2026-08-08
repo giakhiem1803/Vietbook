@@ -60,7 +60,10 @@ def admin_payments(db: Session = Depends(get_db)):
 def update_payment(payment_id: int, payload: PaymentStatusUpdate, db: Session = Depends(get_db), admin=Depends(require_admin)):
     payment = db.query(PaymentTransactionDB).filter(PaymentTransactionDB.id == payment_id).first()
     if not payment: raise HTTPException(404, "Payment not found")
-    if payload.status not in TRANSITIONS.get(payment.status, set()): raise HTTPException(409, "Invalid or repeated payment status transition")
+    allowed = TRANSITIONS.get(payment.status, set())
+    # COD is confirmed by Admin after successful delivery, without a QR submission step.
+    if payment.method == "COD" and payment.status == "PENDING": allowed = allowed | {"PAID", "FAILED"}
+    if payload.status not in allowed: raise HTTPException(409, "Invalid or repeated payment status transition")
     previous = payment.status; payment.status = payload.status; payment.provider_reference = payload.provider_reference or payment.provider_reference; payment.note = payload.note
     payment.verified_by_admin_id = admin.id; payment.verified_at = datetime.now(timezone.utc)
     order = payment.order; order.payment_status = payment.status
