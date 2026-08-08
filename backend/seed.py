@@ -6,7 +6,8 @@ from database import SessionLocal, engine, Base
 from models.book import BookDB
 from models.user import UserDB
 from models.order import OrderDB, OrderItemDB
-from models.payment import PaymentTransactionDB
+from models.payment import PaymentTransactionDB, PaymentStatusHistoryDB
+from models.audit_log import AdminAuditLogDB
 from auth.security import hash_password
 
 Base.metadata.create_all(bind=engine)

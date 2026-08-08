@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
+from typing import Optional, Literal
 
 class RegisterRequest(BaseModel):
     email: EmailStr
@@ -29,6 +29,13 @@ class AuthUser(BaseModel):
 
 class CustomerAdminRead(AuthUser):
     created_at: str
+
+class AdminCustomerUpdate(BaseModel):
+    full_name: str = Field(..., min_length=1, max_length=100)
+    email: EmailStr
+    phone: str = Field(..., min_length=8, max_length=20)
+    address: str = Field(..., min_length=8, max_length=500)
+    role: Literal["ADMIN", "CUSTOMER"]
 
 class TokenResponse(BaseModel):
     access_token: str

@@ -54,7 +54,12 @@ class PaymentRead(BaseModel):
     amount: float
     transaction_code: str
     provider_reference: Optional[str] = None
+    payment_proof_url: Optional[str] = None
+    payer_name: Optional[str] = None
+    payer_account_hint: Optional[str] = None
     note: Optional[str] = None
+    verified_by_admin_id: Optional[int] = None
+    verified_at: Optional[str] = None
     paid_at: Optional[str] = None
     created_at: str
 
@@ -65,6 +70,14 @@ class PaymentStatusUpdate(BaseModel):
     status: Literal["PENDING", "PENDING_CONFIRMATION", "PAID", "FAILED", "EXPIRED", "REFUNDED"]
     provider_reference: Optional[str] = Field(default=None, max_length=120)
     note: Optional[str] = Field(default=None, max_length=1000)
+
+class PaymentHistoryRead(BaseModel):
+    id: int
+    previous_status: Optional[str] = None
+    new_status: str
+    changed_by_user_id: Optional[int] = None
+    note: Optional[str] = None
+    created_at: str
 
 class OrderStatusUpdate(BaseModel):
     status: str

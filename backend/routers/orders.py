@@ -6,7 +6,7 @@ from typing import List
 from database import get_db
 from models.order import OrderDB, OrderItemDB
 from models.book import BookDB
-from models.payment import PaymentTransactionDB
+from models.payment import PaymentTransactionDB, PaymentStatusHistoryDB
 from schemas.order import CheckoutRequest, OrderRead, OrderItemRead, OrderSummary, OrderStatusUpdate
 from auth.deps import get_current_user, require_admin
 
@@ -70,8 +70,10 @@ def checkout(payload: CheckoutRequest, db: Session = Depends(get_db), user=Depen
             book.stock -= quantity
             db.add(OrderItemDB(order_id=order.id, book_id=book.id, book_title=book.title,
                                book_price=book.price, quantity=quantity, line_total=book.price * quantity))
-        db.add(PaymentTransactionDB(order_id=order.id, method=payload.payment_method,
-                                   status="PENDING", amount=total, transaction_code=transaction_code))
+        payment = PaymentTransactionDB(order_id=order.id, method=payload.payment_method,
+                                       status="PENDING", amount=total, transaction_code=transaction_code)
+        db.add(payment); db.flush()
+        db.add(PaymentStatusHistoryDB(payment_id=payment.id, previous_status=None, new_status="PENDING", changed_by_user_id=user.id, note="Payment created"))
         db.commit(); db.refresh(order)
         return to_read(order)
     except HTTPException:

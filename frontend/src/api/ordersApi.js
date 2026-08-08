@@ -73,4 +73,8 @@ export const ordersApi = {
     const response = await axiosClient.patch(`/payments/${paymentId}/admin-status`, { status, note }, { headers: authHeader() });
     return response.data;
   },
+  async getPaymentHistory(paymentId) {
+    const response = await axiosClient.get(`/payments/${paymentId}/history`, { headers: authHeader() });
+    return response.data;
+  },
 };

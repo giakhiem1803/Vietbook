@@ -4,7 +4,9 @@ from datetime import timedelta
 
 from database import get_db
 from models.user import UserDB
-from schemas.auth import RegisterRequest, LoginRequest, TokenResponse, AuthUser, ProfileUpdate, CustomerAdminRead
+from models.audit_log import AdminAuditLogDB
+from schemas.auth import RegisterRequest, LoginRequest, TokenResponse, AuthUser, ProfileUpdate, CustomerAdminRead, AdminCustomerUpdate
+import json
 from auth.security import hash_password, verify_password, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
 from auth.deps import get_current_user, require_admin
 
@@ -42,3 +44,18 @@ def update_my_profile(payload: ProfileUpdate, db: Session = Depends(get_db), use
 @router.get("/admin/customers", response_model=list[CustomerAdminRead], dependencies=[Depends(require_admin)])
 def list_customers(db: Session = Depends(get_db)):
     return [customer_read(user) for user in db.query(UserDB).filter(UserDB.role == "CUSTOMER").order_by(UserDB.created_at.desc()).all()]
+
+@router.patch("/admin/customers/{user_id}", response_model=CustomerAdminRead)
+def update_customer_by_admin(user_id: int, payload: AdminCustomerUpdate, db: Session = Depends(get_db), admin: UserDB = Depends(require_admin)):
+    target = db.query(UserDB).filter(UserDB.id == user_id).first()
+    if not target: raise HTTPException(status_code=404, detail="Customer not found")
+    duplicate = db.query(UserDB).filter(UserDB.email == payload.email, UserDB.id != user_id).first()
+    if duplicate: raise HTTPException(status_code=400, detail="Email is already registered")
+    if target.role == "ADMIN" and payload.role != "ADMIN" and db.query(UserDB).filter(UserDB.role == "ADMIN").count() <= 1:
+        raise HTTPException(status_code=400, detail="Cannot remove the last Admin account")
+    fields = {"full_name": payload.full_name, "email": str(payload.email), "phone": payload.phone, "address": payload.address, "role": payload.role}
+    changed = {key: {"from": getattr(target, key), "to": value} for key, value in fields.items() if getattr(target, key) != value}
+    for key, value in fields.items(): setattr(target, key, value)
+    if changed: db.add(AdminAuditLogDB(target_user_id=target.id, admin_user_id=admin.id, action="UPDATE_CUSTOMER", changed_fields=json.dumps(changed)))
+    db.commit(); db.refresh(target)
+    return customer_read(target)

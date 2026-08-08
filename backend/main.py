@@ -8,7 +8,8 @@ from sqlalchemy import text, inspect
 from models.book import BookDB
 from models.user import UserDB
 from models.order import OrderDB, OrderItemDB
-from models.payment import PaymentTransactionDB
+from models.payment import PaymentTransactionDB, PaymentStatusHistoryDB
+from models.audit_log import AdminAuditLogDB
 from models.settings import BankSettingDB
 from models.stock_log import StockLogDB
 from routers import books, auth, orders, admin_stats, settings, payments
@@ -47,7 +48,7 @@ def ensure_schema_columns():
         tables = {
             "users": {"phone": "VARCHAR(20)", "address": "VARCHAR(500)"},
             "orders": {"receiver_name": "VARCHAR(100)", "receiver_phone": "VARCHAR(20)", "shipping_address": "VARCHAR(500)", "payment_method": "VARCHAR(30) DEFAULT 'BANK_TRANSFER'", "payment_status": "VARCHAR(30) DEFAULT 'PENDING'", "transaction_code": "VARCHAR(80)", "discount_amount": "FLOAT DEFAULT 0", "shipping_fee": "FLOAT DEFAULT 0", "coupon_code": "VARCHAR(50)", "momo_order_id": "VARCHAR(100)", "momo_trans_id": "VARCHAR(100)", "updated_at": timestamp_type},
-            "payment_transactions": {"note": "TEXT"},
+            "payment_transactions": {"note": "TEXT", "payment_proof_url": "VARCHAR(500)", "payer_name": "VARCHAR(100)", "payer_account_hint": "VARCHAR(10)", "verified_by_admin_id": "INTEGER", "verified_at": timestamp_type},
         }
         inspector = inspect(connection)
         for table, columns in tables.items():
