@@ -8,6 +8,7 @@ class OrderItemCreate(BaseModel):
 class CheckoutRequest(BaseModel):
     payment_method: Literal["MOMO_QR", "VIETQR", "COD"] = "VIETQR"
     items: List[OrderItemCreate] = Field(..., min_length=1, max_length=50)
+    coupon_code: Optional[str] = Field(default=None, max_length=50)
 
 class OrderItemRead(BaseModel):
     id: int
@@ -19,6 +20,13 @@ class OrderItemRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+class OrderCustomerRead(BaseModel):
+    id: int
+    full_name: str
+    email: str
+    phone: Optional[str] = None
+    address: Optional[str] = None
 
 class OrderRead(BaseModel):
     id: int
@@ -34,7 +42,9 @@ class OrderRead(BaseModel):
     transaction_code: Optional[str] = None
     discount_amount: float = 0
     shipping_fee: float = 0
+    coupon_code: Optional[str] = None
     payments: List["PaymentRead"] = Field(default_factory=list)
+    customer: Optional[OrderCustomerRead] = None
 
 class OrderSummary(BaseModel):
     id: int
@@ -43,6 +53,7 @@ class OrderSummary(BaseModel):
     created_at: str
     payment_method: str = "VIETQR"
     payment_status: str = "PENDING"
+    customer: Optional[OrderCustomerRead] = None
 
     class Config:
         from_attributes = True

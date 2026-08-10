@@ -12,6 +12,7 @@ const CartPage = () => {
   const [placingOrder, setPlacingOrder] = useState(false);
   const [error, setError] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('VIETQR');
+  const [couponCode, setCouponCode] = useState('');
   const navigate = useNavigate();
 
   const handleCheckout = async () => {
@@ -23,7 +24,7 @@ const CartPage = () => {
     setPlacingOrder(true);
     setError('');
     try {
-      const order = await ordersApi.checkout(items, paymentMethod);
+      const order = await ordersApi.checkout(items, paymentMethod, couponCode);
       clearCart();
       navigate(`/orders/${order.id}/payment`);
     } catch (requestError) {
@@ -78,6 +79,11 @@ const CartPage = () => {
       </div>
 
       {error && <div className="alert alert-error" style={{ marginTop: '16px' }}>{error}</div>}
+
+      <div className="card card-pad" style={{ marginTop: '16px' }}>
+        <label className="text-sm"><strong>Mã giảm giá</strong><input value={couponCode} onChange={(e) => setCouponCode(e.target.value.toUpperCase())} placeholder="Ví dụ: VIETBOOK10" style={{ marginLeft: '12px' }} /></label>
+        <p className="muted text-sm">Mã được kiểm tra và tính giảm giá tại server khi đặt hàng.</p>
+      </div>
 
       <div className="card card-pad checkout-method">
         <strong>Phương thức thanh toán</strong>

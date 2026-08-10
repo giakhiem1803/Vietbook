@@ -12,7 +12,8 @@ from models.payment import PaymentTransactionDB, PaymentStatusHistoryDB
 from models.audit_log import AdminAuditLogDB
 from models.settings import BankSettingDB
 from models.stock_log import StockLogDB
-from routers import books, auth, orders, admin_stats, settings, payments
+from models.commerce import WishlistItemDB, ReviewDB, CouponDB, CouponRedemptionDB
+from routers import books, auth, orders, admin_stats, settings, payments, commerce
 
 Base.metadata.create_all(bind=engine)
 
@@ -87,6 +88,7 @@ app.include_router(orders.router)
 app.include_router(admin_stats.router)
 app.include_router(settings.router)
 app.include_router(payments.router)
+app.include_router(commerce.router)
 
 
 @app.get("/")

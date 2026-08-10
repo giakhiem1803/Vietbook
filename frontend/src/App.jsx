@@ -16,6 +16,8 @@ import AdminOrdersPage from './pages/AdminOrdersPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminBankSettingsPage from './pages/AdminBankSettingsPage';
 import AdminCustomersPage from './pages/AdminCustomersPage';
+import WishlistPage from './pages/WishlistPage';
+import AdminCouponsPage from './pages/AdminCouponsPage';
 
 import PrivateRoute from './routes/PrivateRoute';
 import AdminRoute from './routes/AdminRoute';
@@ -41,6 +43,7 @@ const App = () => {
             <Route path="/orders" element={<OrderHistoryPage />} />
             <Route path="/orders/:id" element={<OrderDetailPage />} />
             <Route path="/orders/:id/payment" element={<PaymentPage />} />
+            <Route path="/wishlist" element={<WishlistPage />} />
           </Route>
 
           <Route element={<AdminRoute />}>
@@ -51,6 +54,7 @@ const App = () => {
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
             <Route path="/admin/settings" element={<AdminBankSettingsPage />} />
             <Route path="/admin/customers" element={<AdminCustomersPage />} />
+            <Route path="/admin/coupons" element={<AdminCouponsPage />} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

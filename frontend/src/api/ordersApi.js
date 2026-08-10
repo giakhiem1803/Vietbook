@@ -8,7 +8,7 @@ function authHeader() {
 }
 
 export const ordersApi = {
-  async checkout(cartItems, paymentMethod = 'VIETQR') {
+  async checkout(cartItems, paymentMethod = 'VIETQR', couponCode = '') {
     try {
       const payload = {
         payment_method: paymentMethod,
@@ -16,6 +16,7 @@ export const ordersApi = {
           book_id: item.id,
           quantity: item.quantity,
         })),
+        ...(couponCode.trim() ? { coupon_code: couponCode.trim() } : {}),
       };
       const response = await axiosClient.post('/orders/checkout', payload, { headers: authHeader() });
       return response.data;

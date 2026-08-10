@@ -1,23 +1,10 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { booksApi } from '../api/booksApi';
+import BookList from '../components/BookList';
 
-const HomePage = () => (
-  <main className="home-page">
-    <section className="hero">
-      <div className="hero-orb orb-one" /><div className="hero-orb orb-two" />
-      <div className="hero-content">
-        <span className="eyebrow">VIETBOOK · NHÀ SÁCH TRỰC TUYẾN</span>
-        <h1>Mỗi cuốn sách,<br /><em>một thế giới mới.</em></h1>
-        <p>Khám phá những câu chuyện, tri thức và cảm hứng được tuyển chọn dành cho bạn.</p>
-        <div className="hero-actions"><Link to="/books" className="btn btn-primary">Khám phá sách <span>→</span></Link><a href="#about" className="hero-text-link">Tìm hiểu Vietbook</a></div>
-      </div>
-      <div className="hero-book-stack" aria-hidden="true"><div /><div /><div><span>V</span><small>VIETBOOK</small></div></div>
-    </section>
-    <section id="about" className="home-features">
-      <div><b>01</b><h3>Tuyển chọn kỹ lưỡng</h3><p>Từ văn học đến kỹ năng, mỗi đầu sách đều đáng để mở ra.</p></div>
-      <div><b>02</b><h3>Thanh toán tiện lợi</h3><p>Chuyển khoản ngân hàng nhanh chóng với mã QR VietQR.</p></div>
-      <div><b>03</b><h3>Đồng hành cùng bạn</h3><p>Theo dõi đơn hàng và hành trình đọc của riêng mình.</p></div>
-    </section>
-  </main>
-);
-
-export default HomePage;
+export default function HomePage() {
+  const [books, setBooks] = useState([]); const [error, setError] = useState('');
+  useEffect(() => { booksApi.getAll().then((items) => setBooks(items.slice(0, 4))).catch(() => setError('Chưa thể tải sách nổi bật.')); }, []);
+  return <main className="home-page"><section className="hero"><div className="hero-orb orb-one"/><div className="hero-orb orb-two"/><div className="hero-content"><span className="eyebrow">VIETBOOK · NHÀ SÁCH TRỰC TUYẾN</span><h1>Mỗi cuốn sách,<br/><em>một thế giới mới.</em></h1><p>Khám phá những câu chuyện, tri thức và cảm hứng được tuyển chọn dành cho bạn.</p><div className="hero-actions"><Link to="/books" className="btn btn-primary">Khám phá sách <span>→</span></Link><Link to="/register" className="hero-text-link">Tạo tài khoản để nhận ưu đãi</Link></div></div><div className="hero-book-stack" aria-hidden="true"><div/><div/><div><span>V</span><small>VIETBOOK</small></div></div></section><section className="home-features"><div><b>01</b><h3>Tuyển chọn kỹ lưỡng</h3><p>Từ văn học đến kỹ năng, mỗi đầu sách đều đáng để mở ra.</p></div><div><b>02</b><h3>Ưu đãi minh bạch</h3><p>Nhập mã giảm giá tại giỏ hàng; giá trị đơn luôn được xác thực tại hệ thống.</p></div><div><b>03</b><h3>Đọc và chia sẻ</h3><p>Lưu sách yêu thích, theo dõi đơn và đánh giá những cuốn sách đã mua.</p></div></section><section className="page" style={{ paddingTop: 0 }}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}><div><span className="eyebrow">GỢI Ý HÔM NAY</span><h2 className="section-title">Sách nổi bật</h2></div><Link className="text-sm" to="/books">Xem tất cả →</Link></div>{error ? <div className="alert alert-error">{error}</div> : books.length ? <BookList books={books} /> : <p className="muted">Đang tải sách nổi bật...</p>}</section></main>;
+}
